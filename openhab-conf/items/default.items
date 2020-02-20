@@ -1,0 +1,185 @@
+Group   Bedroom     "Управление спальней"       <bedroom>           (Bedroom)
+Group   Bathroom     "Управление ванной"         <bath>             (Bathroom)
+
+//==============================================================================================================
+
+Group:Number:SUM Water_Sensor          "Датчики протечки [%s]"                        <faucet>      (Water_Sensor)    
+Switch Water_Sensor_Toilet             "Датчики протечки [MAP(motion.map):%s]"        <water>       (Water_Sensor)   {channel ="megad:device:shields:Shield3_P16:in"}
+
+//==============================================================================================================
+
+Switch Shield2_P15  "Звонок на входной двери [%s]"                    {channel ="megad:device:shields:Shield2_P15:in"}
+Switch Shield2_P16  "Выключатель Бра на стене спальни. Слева [%s]"    {channel ="megad:device:shields:Shield2_P16:in"}
+Switch Shield2_P17  "Выключатель в спальне [%s]"                      {channel ="megad:device:shields:Shield2_P17:in"}
+Switch Shield2_P18  "Электрокарниз в спальне - закрыть [%s]"          {channel ="megad:device:shields:Shield2_P18:in"}
+Switch Shield2_P19  "Электрокарниз в спальне - открыть [%s]"          {channel ="megad:device:shields:Shield2_P19:in"}
+Switch Shield2_P20  "Выключитель балконной лампы [%s]"                {channel ="megad:device:shields:Shield2_P20:in"}
+Switch Shield2_P21  "Выключить все в прихожей [%s]"                   {channel ="megad:device:shields:Shield2_P21:in"}
+Switch Shield2_P24  "Включатель люстры на кухне [%s]"                 {channel ="megad:device:shields:Shield2_P24:in"}
+Switch Shield2_P26  "Выключатель в ванной - максимальная яркость [%s]"  {channel ="megad:device:shields:Shield2_P26:in"}
+
+Switch Shield3_P3   "Выключатель Бра на стене спальни. Справа [%s]"     {channel ="megad:device:shields:Shield3_P3:in"}
+Switch Shield3_P24  "Выключатель ламп в прихожей + шкаф [%s]"           {channel ="megad:device:shields:Shield3_P24:in"}
+Switch Shield3_P25  "Включатель подсветки шкафа на кухне [%s]"          {channel ="megad:device:shields:Shield3_P25:in"}
+Switch Shield3_P28  "Выключатель в ванной - минимальная яркость [%s]"   {channel ="megad:device:shields:Shield3_P28:in"}
+
+//==============================================================================================================
+
+Group	Lights_Random
+Group:Switch:OR(ON, OFF)	Lamp    "Управление всем освещением [(%d)]"            <light>          (Lamp) 
+Group:Switch:OR(ON, OFF)	Service "Служебные выключатели [(%d)]"                 <settings>       (Service) 
+Switch	Ghost_Lights		        "Имитация присутствия, свет"				   <parents_1_1>	(Lights_Random)
+
+Dimmer Bedroom_Lamps                "Лампы в спальне [%d %%]"                            <bedroom>       (Bedroom)                         {channel ="megad:device:shields:Bedroom_Lamps:dimmer"}	
+Switch Bedroom_Lamps_Dimmer         "Лампы в спальне [MAP(switch_ru.map):%s]"            <bedroom>       (Lamp)     
+Switch Bedroom_LampOnWall_Right     "Бра в спальне, справа [MAP(switch_ru.map):%s]"      <light>         (Lamp, Bedroom)                   {channel ="megad:device:shields:Bedroom_LampOnWall_Right:out"}	
+Switch Bedroom_LampOnWall_Left      "Бра в спальне, слева [MAP(switch_ru.map):%s]"       <light>         (Lamp, Bedroom, Lights_Random)    {channel ="megad:device:shields:Bedroom_LampOnWall_Left:out"}	
+Switch Bedroom_TV                   "TV в спальне [MAP(switch_ru.map):%s]"               <screen>        (Bedroom)                         {channel ="megad:device:shields:Bedroom_TV:out"}	
+Number Bedroom_Curtains             "Штора в спальне [MAP(curtains.map):%s]"             <blinds>        (Bedroom)                         
+Switch Loggia                       "Лента на лоджии [MAP(switch_ru.map):%s]"            <terrace>       (Lamp, Lights_Random)             {channel ="megad:device:shields:Loggia:out"}	
+Switch Kitchen_Cupboard             "Подсветка шкафов на кухне [MAP(switch_ru.map):%s]"  <kitchen>       (Lamp)                            {channel ="megad:device:shields:Kitchen_Cupboard:out"}	
+Switch Kitchen_Lamp                 "Люстра на кухне [MAP(switch_ru.map):%s]"            <party>         (Lamp)                            {channel ="megad:device:shields:Kitchen_Lamp:out"}	
+Switch Toilet_Extractor             "Вытяжка в туалете [MAP(switch_ru.map):%s]"          <fan>                                             {channel ="megad:device:shields:Toilet_Extractor:out"}	
+Dimmer Toilet_Lamps                 "Лампы в туалете [%d %%]"                            <bath>                                            {channel ="megad:device:shields:Toilet_Lamps:dimmer"}	
+Switch Toilet_Lamps_Dimmer          "Лампы в туалете [MAP(switch_ru.map):%s]"            <bath>          (Lamp)     
+Switch Toilet_WaterLeak             "Перекрытие воды [MAP(water.map):%s]"                <faucet>        (Water_Sensor)  
+Switch Bell                         "Звонок в щите [MAP(switch_ru.map):%s]"              <soundvolume>   (Service)                         {channel ="megad:device:shields:Bell:out"}	
+Switch Hallway_Bottom               "Подсветка в прихожей [MAP(switch_ru.map):%s]"       <returnpipe>    (Lamp)                            {channel ="megad:device:shields:Hallway_Bottom:out"}	
+Dimmer Hallway_Lamps                "Лампы в прихожей [%d %%]"                           <corridor>                                        {channel ="megad:device:shields:Hallway_Lamps:dimmer"}	
+Switch Hallway_Lamps_Dimmer         "Лампы в прихожей [MAP(switch_ru.map):%s]"           <corridor>      (Lamp)     
+Switch Fire            "Замыкание датчиков дыма для пульта ТСЖ [MAP(switch_ru.map):%s]"  <alarm>         (Service)                         {channel ="megad:device:shields:Fire:out"}	
+
+//==============================================================================================================
+Group:Number:AVG Indoor                         "Температура в квартире [%.2f °C]"   <temperature>   (Indoor) 
+Group:Number:AVG Pipes                      	"Температура труб [%.2f °C]"         <bath>          (Pipes, Indoor) 
+Group:Number:AVG Heating                      	"Температура батарей [%.2f °C]"      <radiator>      (Heating, Indoor) 
+Group:Number:AVG Humidity                       "Влажность в квартире [%.2f °C]"     <humidity>      (Humidity) 
+
+Number Shield3_Top_P0_BMx280_Temp               "Темп. на улице [%.2f °C]"	       <garden>     	 (Pipes)    { http="<[http://192.168.48.30/sec/?pt=0&scl=1&i2c_dev=bmx280&i2c_par=1:60000:REGEX((.*?))]" }	//{ channel = "megad:device:shields:Shield3_P0_BME280_temp:temp" }
+Number Shield3_Top_P0_BMx280_Hum                "Влажность на улице [%.2f %%]"     <humidity>        (Humidity) { http="<[http://192.168.48.30/sec/?pt=0&scl=1&i2c_dev=bmx280&i2c_par=2:60000:REGEX((.*?))]" }	//{ channel = "megad:device:shields:Shield3_P0_BME280_hum:humidity" }
+Number Shield3_Top_P0_BMx280_Press	  	        "Атм. давление [%.2f мм рт. ст.]"  <pressure>		            { http="<[http://192.168.48.30/sec/?pt=0&scl=1&i2c_dev=bmx280:60000:REGEX((.*?))]" }	//{ channel = "megad:device:shields:Shield3_P0_BME280_pres:i2c" }
+Number Shield3_Top_P0_HTU21D_Temp_Bedroom       "Темп. в спальне [%.2f °C]"	       <temperature>	 (Indoor)   { http="<[http://192.168.48.30/sec/?pt=0&scl=1&i2c_dev=htu21d&i2c_par=1:60000:REGEX((.*?))]" }	
+Number Shield3_Top_P0_HTU21D_Hum_Bedroom        "Влажность в спальне [%.2f %%]"    <humidity>        (Humidity) { http="<[http://192.168.48.30/sec/?pt=0&scl=1&i2c_dev=htu21d:60000:REGEX((.*?))]" }	
+Number Shield3_Top_P0_MAX44009	             	"Освещ. улицы [%.2f lux]"          <sunrise>		            { http="<[http://192.168.48.30/sec/?pt=0&scl=1&i2c_dev=max44009:60000:REGEX((.*?))]" }	
+
+Number Shield3_Top_P2_MH_Z14A	              	"Датчик углекислого газа в спальне [%.2f ADC]"       <carbondioxide> (Bedroom)	{ http="<[http://192.168.48.30/sec/?pt=2&cmd=get:60000:REGEX((.*?))]" }	
+
+Number Shield3_Top_P5_HTU21D_Temp_Bath           "Темп. в ванной [%.2f °C]"	       <temperature>	 (Indoor)   { http="<[http://192.168.48.30/sec/?pt=5&scl=1&i2c_dev=htu21d&i2c_par=1:60000:REGEX((.*?))]" }	
+Number Shield3_Top_P5_HTU21D_Hum_Bath            "Влажность в ванной [%.2f %%]"     <humidity>       (Humidity) { http="<[http://192.168.48.30/sec/?pt=5&scl=1&i2c_dev=htu21d:60000:REGEX((.*?))]" }	
+
+String  Shield3_Top_P5_SSD1306_Text             "Дисплей SSD1306 Text [%s]"         { http=">[*:GET:http://192.168.48.30/sec/?pt=5&text=%2$s]" }
+String  Shield3_Top_P5_SSD1306_SmallText        "Дисплей SSD1306 SmallText [%s]"    { http=">[*:GET:http://192.168.48.30/sec/?pt=5&text=%2$s&col=30&row=0]" }
+
+Number Shield3_Top_P6_DS18B20_WC_cold			"Темп. хол. трубы, °C [%.2f]"   	        	<temperature_cold>	(Pipes)	  { http="<[http://192.168.48.30/sec/?pt=6&cmd=list:60000:REGEX(.*?ff160e631603:(.*?);(.*))]" }	
+Number Shield3_Top_P6_DS18B20_WC_cold_min		"Мин. значение хол. трубы в месяце, °C [%.2f]"
+Number Shield3_Top_P6_DS18B20_WC_hot			"Темп. гор. трубы, °C [%.2f]"		            <temperature_hot>	(Pipes)	  { http="<[http://192.168.48.30/sec/?pt=6&cmd=list:60000:REGEX(.*?ff7d30211605:(.*?))]" }	
+Number Shield3_Top_P6_DS18B20_WC_hot_max		"Макс. значение гор. трубы в месяце, °C [%.2f]"
+Number Shield3_Top_P6_DS18B20_Bath		    	"Темп. ванны, °C [%.2f]"   	                 	<bath>	            (Pipes)	  { http="<[http://192.168.48.30/sec/?pt=6&cmd=list:60000:REGEX(.*?ff9ec0711703:(.*?);(.*))]" }	
+
+Number Shield3_Top_P7_DS18B20_Heat_Kitchen  	"Темп. бат. кухни [%.2f °C]"	      <radiator>	    (Heating)	        	{ http="<[http://192.168.48.30/sec/?pt=7&cmd=list:60000:REGEX(.*?ffbe6e731603:(?!85)(.*?);(.*))]" }	
+Number Shield3_Top_P7_DS18B20_Heat_Room	        "Темп. бат. спальни [%.2f °C]"        <radiator>    	(Heating)	           	{ http="<[http://192.168.48.30/sec/?pt=7&cmd=list:60000:REGEX(.*?ff01ec721604:(?!85)(.*?))]" }	
+Number Shield3_Top_P7_avg                    	"Средняя темп. батареи в месяце [%.2f °C]"
+
+//==============================================================================================================
+Group:Number:SUM         ALL_motions   "Двери, окна, движения [%s]"             <motion>       
+
+Group:Number:SUM         Doors          "Двери [%s]"                             <door>      (Doors)    
+Switch      Door_Entrance               "Входная дверь [MAP(door.map):%s]"       <door>      (ALL_motions)    {channel ="megad:device:shields:Shield3_P23:in"}
+String 		Door_Entrance_state			"Дверь [%s]"
+String 		Door_Entrance_state_general	"Входная дверь [%s]"	             	<door>	  	 (ALL_motions)
+DateTime	Door_Entrance_last_use		"Door, last use [%1$td.%1$tm, %1$tR]"
+Number 		Door_Entrance_DoorRunStart 	"P5_DoorRunStart [%s]"	
+Number		Door_Entrance_last_use_ago	"Door, last use, h. ago [%.2f]" // http://192.168.48.31:8080/chart?items=Door_Entrance_last_use_ago&period=D&h=900&w=1900 
+
+Switch Door_Bathroom                    "Дверь в ванную [MAP(door.map):%s]"      <door>      (ALL_motions)    {channel ="megad:device:shields:Shield3_P15:in"}
+Switch Door_Loggia                      "Дверь на балкон [MAP(door.map):%s]"     <door>      (ALL_motions)    {channel ="megad:device:shields:Shield3_P27:in"}
+
+Group:Number:SUM         Windows       "Окна [%s]"                                   <window>      (Windows)    
+Switch Windows_Bedroom_Left            "Окно спальни левое [MAP(door.map):%s]"       <window>      (ALL_motions)   {channel ="megad:device:shields:Shield3_P26:in"}
+Switch Windows_Bedroom_Right           "Окно спальни правое [MAP(door.map):%s]"      <window>      (ALL_motions)   {channel ="megad:device:shields:Shield3_P26:in"}
+
+Group:Number:SUM   Motion_Sensors      "Датчики движения [%s]"                          <motion>      (Motion_Sensors)    
+Switch Motion_Sensors_Outside          "Датчики движения коридор [MAP(motion.map):%s]"  <motion>      (ALL_motions)   {channel ="megad:device:shields:Shield3_P17:in"}
+Switch Motion_Sensors_Hallway          "Датчики движения прихожая [MAP(motion.map):%s]" <motion>      (ALL_motions)   {channel ="megad:device:shields:Shield3_P18:in"}
+Switch Motion_Sensors_Kitchen          "Датчики движения кухня [MAP(motion.map):%s]"    <motion>      (ALL_motions)   {channel ="megad:device:shields:Shield3_P19:in"}
+Switch Motion_Sensors_Loggia           "Датчики движения лоджия [MAP(motion.map):%s]"   <motion>      (ALL_motions)   {channel ="megad:device:shields:Shield3_P20:in"}
+Switch Motion_Sensors_Batch            "Датчики движения ванная [MAP(motion.map):%s]"   <motion>      (ALL_motions)   {channel ="megad:device:shields:Shield3_P30:in"}
+     
+//==============================================================================================================
+
+Group   Counters                    	"Приборы учета"                                 <office>       (Counters) 
+Group	WaterCold 
+String	CountWaterCold					"Холодная вода: "
+Switch	P8_WaterPulse_cold				"Холодная, счетчик [%s]"          {channel ="megad:device:shields:Shield3_P8:in"}
+Number	CountWaterM3Cold				"ХВС, м. куб. [%.2f]"	    	<humidity>		(Counters)
+String	CountWaterM3Cold_general		"Холодная, м. куб. [%s]"					<office>
+Number	CountWaterM3Cold_Kalends		"ХВС на 1е число, м. куб. [%.2f]"		    	<water>		    (Counters)
+Number	CountWaterM3Cold_Consumption	"ХВС расход в тек.мес., м. куб. [%.2f]"			<humidity>		(Counters)
+
+Group	WaterHot 
+String	CountWaterHot					"Горячая вода: "
+Switch	P9_WaterPulse_hot				"Горячая, счетчик [%s]"           	{channel ="megad:device:shields:Shield3_P9:in"}
+Number	CountWaterM3Hot					"ГВС, м. куб. [%.2f]"   		<humidity>		(Counters)
+String	CountWaterM3Hot_general			"Горячая, м. куб. [%s]"					<office>
+Number	CountWaterM3Hot_Kalends			"ГВС на 1е число, м. куб. [%.2f]"	    		<water>	    	(Counters)
+Number	CountWaterM3Hot_Consumption		"ГВС расход в тек.мес., м. куб. [%.2f]"			<humidity>		(Counters)
+
+String Merc200_amper_str            "electo_counters"                               {channel="exec:command:Merc200_amper:output"}
+Number Merc200_amper                "Сила тока тек. [%.1f A]"           <energy>
+String Merc200_power_str            "electo_counters"                               {channel="exec:command:Merc200_power:output"}
+Number Merc200_power                "Мощность [%.3f kW]"                <pump>
+String Merc200_volt_str             "electo_counters"                               {channel="exec:command:Merc200_volt:output"}
+Number Merc200_volt                 "Напряжение [%.1f V]"               <line>
+String Merc200_t1_str               "electo_counters"                               {channel="exec:command:Merc200_t1:output"}
+Number Merc200_t1                   "Меркурий 200, T1 тек. [%.0f кВт*ч]" <text>
+String Merc200_t2_str               "electo_counters"                               {channel="exec:command:Merc200_t2:output"}
+Number Merc200_t2                   "Меркурий 200, T2 тек. [%.0f кВт*ч]" <text>  
+String  MercuryIncotex201KWh_general  			"Э/э Меркурий 200, кВт*ч [%s]"		<office>		(Counters)			
+Number  MercuryIncotex201KWh_Kalends			"Э/э на начало месяца, кВт*ч [%.2f]"	<energy>		(Counters)
+Number  MercuryIncotex201KWh_Consumption		"Э/э расход в тек.месяце, кВт*ч [%.2f]"	<line>			(Counters)
+Number  MercuryIncotex201KWh_Consumption_Price	"Э/э по 3,62 в тек.месяце, руб. [%.2f]"	<pie>	
+
+//==============================================================================================================
+
+String USB_Maximum_amplitude		"USB Maximum amplitude [%s]"        <line>	  	{channel="exec:command:USB_Maximum_amplitude:output"}
+Number USB_Maximum_amplitude_dB		"Датчик шума коридор [%.2f дБ]"     <line>	   // http://192.168.48.31:8080/chart?items=USB_Maximum_amplitude_dB&period=D&h=900&w=1900 	
+
+//==============================================================================================================
+
+Group:Switch:OR(OFF, ON) 	Reachable "Недоступное оборудования [(%d)]"     <network>           (Reachable) 
+Switch	LAN_MikroTik	        "MikroTik hAP lite RB941-2nD-TC [%s]"	    <qualityofservice>	(Reachable)			{ channel="network:pingdevice:LAN_MikroTik:online" }
+Switch	LAN_MegaD2561_Shield2	"MegaD-2561 щит 2 [%s]"		        	    <qualityofservice>	(Reachable)			{ channel="network:pingdevice:LAN_MegaD2561_Shield2:online" } 
+Switch	LAN_MegaD2561_Shield3	"MegaD-2561 щит 3 [%s]"			            <qualityofservice>	(Reachable)			{ channel="network:pingdevice:LAN_MegaD2561_Shield3:online" } 
+Switch	LAN_HIKVISION		     "HIKVISION DS-2CD2542FWD-IS [%s]"		    <qualityofservice>	(Reachable)			{ channel="network:pingdevice:LAN_HIKVISION:online" }
+
+//==============================================================================================================
+
+DateTime dateTimeNTP			"Дата и время [%1$tA, %1$td.%1$tm.%1$tY, %1$tR]"    	<calendar>		{ channel="ntp:ntp:pool:dateTime" }  	 //расшифровка букв https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html
+String	dateTime				"Дата и время сервера [%s]"								<calendar>
+
+//==============================================================================================================
+
+Group   Systeminfo  "Информация сервера"         <screen>      (Systeminfo) 
+/* CPU information*/
+Number CPU_Load                   <line-stagnation>  (Systeminfo) { channel="systeminfo:computer:work:cpu#load"} 
+Number CPU_Threads                <line-stagnation>  (Systeminfo) { channel="systeminfo:computer:work:cpu#threads" }
+Number CPU_Uptime                 <line-stagnation>  (Systeminfo) { channel="systeminfo:computer:work:cpu#uptime" }
+
+/* Storage information*/
+Number Storage_Total               <line-stagnation>  (Systeminfo) { channel="systeminfo:computer:work:storage#total" }
+Number Storage_Available_Percent   <line-stagnation>  (Systeminfo) { channel="systeminfo:computer:work:storage#availablePercent" }
+
+/* Memory information*/
+Number Memory_Available            <line-stagnation>  (Systeminfo) { channel="systeminfo:computer:work:memory#available" }
+Number Memory_Available_Percent    <line-stagnation>  (Systeminfo) { channel="systeminfo:computer:work:memory#availablePercent" }
+
+/* Network information*/
+Number Network_DataSent          <line-stagnation>    (Systeminfo)   { channel="systeminfo:computer:work:network#dataSent" }
+Number Network_DataRecevied      <line-stagnation>    (Systeminfo)   { channel="systeminfo:computer:work:network#dataReceived" }
+
+//==============================================================================================================
+
+Number	ChartPeriod		"Интервал"		<chart>	
+String	ChartPeriodName	"График: "
+
+//==============================================================================================================

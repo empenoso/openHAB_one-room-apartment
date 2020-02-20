@@ -1,0 +1,87 @@
+Bridge megad:bridge:shields  [port=8090]
+{
+    //кнопки
+    Thing device Shield2_P15    [hostname="192.168.48.20", port="15", password="sec", refresh="0"]
+    Thing device Shield2_P16    [hostname="192.168.48.20", port="16", password="sec", refresh="0"]
+    Thing device Shield2_P17    [hostname="192.168.48.20", port="17", password="sec", refresh="0"]
+    Thing device Shield2_P18    [hostname="192.168.48.20", port="18", password="sec", refresh="0"]
+    Thing device Shield2_P19    [hostname="192.168.48.20", port="19", password="sec", refresh="0"]
+    Thing device Shield2_P20    [hostname="192.168.48.20", port="20", password="sec", refresh="0"]
+    Thing device Shield2_P21    [hostname="192.168.48.20", port="21", password="sec", refresh="0"]
+    Thing device Shield2_P24    [hostname="192.168.48.20", port="24", password="sec", refresh="0"]
+    Thing device Shield2_P26    [hostname="192.168.48.20", port="26", password="sec", refresh="0"]
+    Thing device Shield3_P3     [hostname="192.168.48.30", port="3", password="sec", refresh="0"]
+    Thing device Shield3_P24    [hostname="192.168.48.30", port="24", password="sec", refresh="0"]
+    Thing device Shield3_P25    [hostname="192.168.48.30", port="25", password="sec", refresh="0"]
+    Thing device Shield3_P28    [hostname="192.168.48.30", port="28", password="sec", refresh="0"]
+    //светильники
+    Thing device Bedroom_LampOnWall_Right    [hostname="192.168.48.20", port="0", password="sec", refresh="10"]
+    Thing device Bedroom_LampOnWall_Left     [hostname="192.168.48.20", port="1", password="sec", refresh="10"]
+    Thing device Bedroom_Lamps               [hostname="192.168.48.20", port="28", password="sec", refresh="10"] 
+    Thing device Bedroom_TV                  [hostname="192.168.48.20", port="2", password="sec", refresh="10"] 
+    Thing device Bedroom_Curtains_Open       [hostname="192.168.48.20", port="3", password="sec", refresh="10"] 
+    Thing device Bedroom_Curtains_Close      [hostname="192.168.48.20", port="4", password="sec", refresh="10"] 
+    Thing device Loggia                      [hostname="192.168.48.20", port="5", password="sec", refresh="10"] 
+    Thing device Kitchen_Cupboard            [hostname="192.168.48.20", port="7", password="sec", refresh="10"] 
+    Thing device Kitchen_Lamp                [hostname="192.168.48.20", port="13", password="sec", refresh="10"] 
+    Thing device Toilet_Extractor            [hostname="192.168.48.20", port="22", password="sec", refresh="10"] 
+    Thing device Toilet_Lamps                [hostname="192.168.48.20", port="25", password="sec", refresh="10"] 
+    Thing device Toilet_WaterLeak_Open       [hostname="192.168.48.20", port="8", password="sec", refresh="10"] 
+    Thing device Toilet_WaterLeak_Close      [hostname="192.168.48.20", port="9", password="sec", refresh="10"] 
+    Thing device Bell                        [hostname="192.168.48.20", port="10", password="sec", refresh="10"] 
+    Thing device Hallway_Bottom              [hostname="192.168.48.20", port="23", password="sec", refresh="10"] 
+    Thing device Hallway_Lamps               [hostname="192.168.48.20", port="27", password="sec", refresh="10"] 
+    //Счетчик ГВС|ХВС	
+    Thing device Shield3_P8    [hostname="192.168.48.30", port="8", password="sec", refresh="60"]
+    Thing device Shield3_P9    [hostname="192.168.48.30", port="9", password="sec", refresh="60"]
+    //датчики движения
+    Thing device Shield3_P17    [hostname="192.168.48.30", port="17", password="sec", refresh="10"]
+    Thing device Shield3_P18    [hostname="192.168.48.30", port="18", password="sec", refresh="10"]
+    Thing device Shield3_P19    [hostname="192.168.48.30", port="19", password="sec", refresh="10"]
+    Thing device Shield3_P20    [hostname="192.168.48.30", port="20", password="sec", refresh="10"]
+    Thing device Shield3_P30    [hostname="192.168.48.30", port="30", password="sec", refresh="10"]
+    //окна
+    Thing device Shield3_P26    [hostname="192.168.48.30", port="26", password="sec", refresh="10"]
+    Thing device Shield3_P26    [hostname="192.168.48.30", port="26", password="sec", refresh="10"]
+    //двери
+    Thing device Shield3_P23    [hostname="192.168.48.30", port="23", password="sec", refresh="10"]
+    Thing device Shield3_P15    [hostname="192.168.48.30", port="15", password="sec", refresh="10"]
+    Thing device Shield3_P27    [hostname="192.168.48.30", port="27", password="sec", refresh="10"]
+    //протечка
+    Thing device Shield3_P16    [hostname="192.168.48.30", port="16", password="sec", refresh="20"]    
+}
+
+//==============================================================================================================
+
+Thing network:pingdevice:LAN_HIKVISION  [ hostname="192.168.48.40" ]
+Thing network:pingdevice:LAN_MegaD2561_Shield2  [ hostname="192.168.48.20" ]
+Thing network:pingdevice:LAN_MegaD2561_Shield3  [ hostname="192.168.48.30" ]
+Thing network:pingdevice:LAN_MikroTik   [ hostname="192.168.48.1" ]
+
+//==============================================================================================================
+
+Thing exec:command:USB_Maximum_amplitude [command="bash /etc/openhab2/exec/USB_dB.sh", transform="REGEX((.*?))", interval=60, autorun=true]
+Thing exec:command:Merc200_amper [command="sh /etc/openhab2/exec/electo_counters/electro_counter.sh amper", transform="REGEX((.*?))", interval=70, autorun=true]
+Thing exec:command:Merc200_power [command="sh /etc/openhab2/exec/electo_counters/electro_counter.sh power", transform="REGEX((.*?))", interval=80, autorun=true]
+Thing exec:command:Merc200_volt [command="sh /etc/openhab2/exec/electo_counters/electro_counter.sh volt", transform="REGEX((.*?))", interval=300, autorun=true]
+Thing exec:command:Merc200_t1 [command="sh /etc/openhab2/exec/electo_counters/electro_counter.sh kwatthour:T1", transform="REGEX((.*?))", interval=3600, autorun=true]
+Thing exec:command:Merc200_t2 [command="sh /etc/openhab2/exec/electo_counters/electro_counter.sh kwatthour:T2", transform="REGEX((.*?))", interval=3700, autorun=true]
+
+//==============================================================================================================
+
+Thing systeminfo:computer:work [interval_high=60, interval_medium=120] 
+
+//==============================================================================================================
+
+ntp:ntp:pool  [ hostname="nl.pool.ntp.org", refreshInterval=60, refreshNtp=30 ]
+
+//==============================================================================================================
+
+
+//==============================================================================================================
+
+
+//==============================================================================================================
+
+
+//==============================================================================================================

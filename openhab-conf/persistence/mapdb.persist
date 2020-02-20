@@ -1,0 +1,7 @@
+Strategies {
+    everyHour   : "0 0 * * * ?"
+}
+
+Items {
+    *               : strategy = everyChange, restoreOnStartup
+}

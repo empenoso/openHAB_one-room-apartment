@@ -1,0 +1,127 @@
+sitemap default label="Революции 48А - ЖК Гуллливер"	
+{
+Frame label="Квартира" {
+Text item=Lamp  {
+    Switch item=Lamp mappings=[OFF="ВЫКЛ всё", ON="ВКЛ всё"]
+    Default item=Bedroom_Lamps
+    Default item=Bedroom_LampOnWall_Right
+    Default item=Bedroom_LampOnWall_Left
+    Default item=Loggia
+    Default item=Kitchen_Cupboard
+    Default item=Kitchen_Lamp
+    Default item=Toilet_Lamps
+    Default item=Hallway_Bottom
+    Default item=Hallway_Lamps
+}
+Text item=Bedroom {
+    Default item=Bedroom_Lamps
+    Default item=Bedroom_LampOnWall_Right
+    Default item=Bedroom_LampOnWall_Left
+    Switch item=Bedroom_Curtains mappings=[0="Закр.", 1="СТОП", 2="Откр."]
+    Default item=Bedroom_TV
+    Default item=Shield3_Top_P2_MH_Z14A
+    Default item=Shield3_Top_P0_HTU21D_Temp_Bedroom
+    Default item=Shield3_Top_P0_HTU21D_Hum_Bedroom
+    Default item=Shield3_Top_P7_DS18B20_Heat_Room
+}
+Text item=Bathroom {
+    Default item=Toilet_WaterLeak
+    Text item=Water_Sensor_Toilet
+    Default item=Toilet_Extractor
+    Default item=Shield3_Top_P5_HTU21D_Temp_Bath
+    Default item=Shield3_Top_P5_HTU21D_Hum_Bath
+    Default item=Shield3_Top_P6_DS18B20_WC_cold
+    Default item=Shield3_Top_P6_DS18B20_WC_hot
+    Default item=Shield3_Top_P6_DS18B20_Bath
+}
+Group item=Indoor {
+    Frame label="Температура в квартире" {
+    Text item=Shield3_Top_P0_HTU21D_Temp_Bedroom
+    Text item=Shield3_Top_P5_HTU21D_Temp_Bath
+    }
+    Frame label="Температура батарей" {
+    Text item=Shield3_Top_P7_DS18B20_Heat_Kitchen
+    Text item=Shield3_Top_P7_DS18B20_Heat_Room
+    }        
+    Frame label="Температура труб" {
+    Text item=Shield3_Top_P6_DS18B20_WC_cold
+    Text item=Shield3_Top_P6_DS18B20_WC_hot
+    Text item=Shield3_Top_P6_DS18B20_Bath
+    /*Switch item=ChartPeriod label="Температура труб" mappings=[0="12 часов", 1="3 дня", 2="2 недели", 3="4 месяца"] 
+	Chart item=Pipes period=12h refresh=30000 visibility=[ChartPeriod==0, ChartPeriod=="Uninitialized"]
+	Chart item=Pipes period=3D refresh=60000 visibility=[ChartPeriod==1]
+	Chart item=Pipes period=2W refresh=60000 visibility=[ChartPeriod==2]	
+	Chart item=Pipes period=4M refresh=60000 visibility=[ChartPeriod==3]*/   
+    } 
+}
+Group item=Humidity 
+Group item=ALL_motions {
+    Frame label="Двери" {
+    Text item=Door_Entrance
+    Text item=Door_Entrance_state_general
+    Text item=Door_Bathroom    
+    Text item=Door_Loggia   
+    }
+    Frame label="Окна" {
+    Text item=Windows_Bedroom_Left
+    Text item=Windows_Bedroom_Right
+    }
+    Frame label="Датчики движения" {
+    Text item=Motion_Sensors_Outside
+    Text item=Motion_Sensors_Hallway
+    Text item=Motion_Sensors_Kitchen    
+    Text item=Motion_Sensors_Loggia   
+    Text item=Motion_Sensors_Batch   
+    }        
+}
+Text item=Counters {
+    Frame label="Электроэнергия" {
+    Default item=Merc200_amper
+    Default item=Merc200_power
+    Default item=Merc200_volt
+    /*Switch item=ChartPeriod label="Сила тока" mappings=[0="12 часов", 1="3 дня", 2="2 недели", 3="4 месяца"] 
+	Chart item=Merc200_amper period=12h refresh=30000 visibility=[ChartPeriod==0, ChartPeriod=="Uninitialized"]
+	Chart item=Merc200_amper period=3D refresh=60000 visibility=[ChartPeriod==1]
+	Chart item=Merc200_amper period=2W refresh=60000 visibility=[ChartPeriod==2]	
+	Chart item=Merc200_amper period=4M refresh=60000 visibility=[ChartPeriod==3]    */
+    Default item=Merc200_t1
+    Default item=Merc200_t2
+    }
+        Frame label="Холодная вода (ХВС)" {
+        Text item=CountWaterM3Cold_general
+        Text item=CountWaterM3Cold_Kalends
+        }
+    Frame label="Горячая вода (ГВС)" {
+    Text item=CountWaterM3Hot_general
+    Text item=CountWaterM3Hot_Kalends
+    }
+    }
+}
+
+Frame label="Улица" {
+	Text item=Shield3_Top_P0_BMx280_Temp /*{
+    Switch item=ChartPeriod label="Температура улицы" mappings=[0="12 часов", 1="3 дня", 2="2 недели", 3="4 месяца"] 
+	Chart item=Shield3_Top_P0_BMx280_Temp period=12h refresh=30000 visibility=[ChartPeriod==0, ChartPeriod=="Uninitialized"]
+	Chart item=Shield3_Top_P0_BMx280_Temp period=3D refresh=60000 visibility=[ChartPeriod==1]
+	Chart item=Shield3_Top_P0_BMx280_Temp period=2W refresh=60000 visibility=[ChartPeriod==2]	
+	Chart item=Shield3_Top_P0_BMx280_Temp period=4M refresh=60000 visibility=[ChartPeriod==3]    
+    Switch item=ChartPeriod label="Освещ. улицы" mappings=[0="12 часов", 1="3 дня", 2="2 недели", 3="4 месяца"] 
+	Chart item=Shield3_Top_P0_MAX44009 period=12h refresh=30000 visibility=[ChartPeriod==0, ChartPeriod=="Uninitialized"]
+	Chart item=Shield3_Top_P0_MAX44009 period=3D refresh=60000 visibility=[ChartPeriod==1]
+	Chart item=Shield3_Top_P0_MAX44009 period=2W refresh=60000 visibility=[ChartPeriod==2]	
+	Chart item=Shield3_Top_P0_MAX44009 period=4M refresh=60000 visibility=[ChartPeriod==3]    
+    }*/
+	Text item=Shield3_Top_P0_BMx280_Hum	
+    Text item=Shield3_Top_P0_BMx280_Press			
+	Text item=Shield3_Top_P0_MAX44009 
+    }
+
+Frame label="Служебное" {
+    Text item=dateTimeNTP 
+	Group item=Service 
+    //Default item=USB_Maximum_amplitude_dB 
+    Group item=Systeminfo
+	Group item=Reachable
+}	
+
+}

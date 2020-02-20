@@ -1,0 +1,548 @@
+import org.openhab.core.library.types.*
+import org.openhab.core.persistence.*
+import org.openhab.model.script.actions.*
+import org.joda.time.*
+
+import java.lang.Math
+import java.util.Calendar
+import java.util.Date
+import java.util.TimeZone
+import java.text.SimpleDateFormat
+import java.util.Random
+
+import java.lang.Double.*
+import java.lang.String.*
+
+/* =============================================================================================================== */
+/*
+// Начальная настройка показаний 
+rule "System started Counters"
+when
+   System started
+then
+	postUpdate(CountWaterM3Cold, 53.199)
+	postUpdate(CountWaterM3Hot, 27.554)       
+end 
+*/
+/*
+rule "initial" 	//чтобы уйти от NULL в самом начале
+when
+    System started
+then
+	postUpdate(CountWaterM3Hot_Consumption, 0)
+	postUpdate(CountWaterM3Cold_Consumption, 0)
+end
+*/
+/* =============================================================================================================== */
+//для диммера
+rule "Bedroom_Lamps"
+when
+    Item Bedroom_Lamps_Dimmer received command
+then
+    switch(receivedCommand) {
+        case OFF:   postUpdate(Bedroom_Lamps, 0)
+        case ON:    postUpdate(Bedroom_Lamps, 100)
+    }       
+end
+
+rule "Toilet_Lamps"
+when
+    Item Toilet_Lamps_Dimmer received command
+then
+    switch(receivedCommand) {
+        case OFF:   sendCommand(Toilet_Lamps, 0)
+        case ON:    sendCommand(Toilet_Lamps, 100)
+    }       
+end
+
+rule "Hallway_Lamps"
+when
+    Item Hallway_Lamps_Dimmer received command
+then
+    switch(receivedCommand) {
+        case OFF:   sendCommand(Hallway_Lamps, 0)
+        case ON:    sendCommand(Hallway_Lamps, 100)
+    }       
+end
+
+/* =============================================================================================================== */
+// Правило для штор
+
+rule "Bedroom_Curtains"
+when
+    Item Bedroom_Curtains changed
+then
+    switch(Bedroom_Curtains.state as DecimalType) {
+        case 0: {       //закрыть
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=3&cmd=4:0")
+            Thread::sleep(100)
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=3&cmd=3:0")
+            Thread::sleep(100)
+
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=3&cmd=3:1")
+            Thread::sleep(18000) //17000 миллисекунд в секундах
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=3&cmd=3:0")
+        }
+        case 1: {       //СТОП
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=3&cmd=4:0")
+            Thread::sleep(100)
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=3&cmd=3:0")
+            Thread::sleep(100)
+        }
+        case 2: {    //открыть
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=3&cmd=4:0")
+            Thread::sleep(100)
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=3&cmd=3:0")
+            Thread::sleep(100)
+
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=4&cmd=4:1")
+            Thread::sleep(18000) //17000 миллисекунд в секундах
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=4&cmd=4:0")
+        }
+    }       
+end
+
+/* =============================================================================================================== */
+// Правило для перекрытия воды
+
+rule "Toilet_WaterLeak"
+when
+    Item Toilet_WaterLeak received command
+then
+    switch(receivedCommand) {
+        case OFF: {        //открыть
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=8&cmd=8:0")
+            Thread::sleep(100)
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=9&cmd=9:0")
+            Thread::sleep(100)
+
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=8&cmd=8:1")
+            Thread::sleep(17000) //17000 миллисекунд в секундах
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=8&cmd=8:0")
+        }
+        case ON: {       //закрыть
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=8&cmd=8:0")
+            Thread::sleep(100)
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=9&cmd=9:0")
+            Thread::sleep(100)
+
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=9&cmd=9:1")
+            Thread::sleep(17000) //17000 миллисекунд в секундах
+            sendHttpGetRequest("http://192.168.48.20/sec/?pt=9&cmd=9:0")
+        }
+    }       
+end
+
+/* =============================================================================================================== */
+// дисплей на кухне
+
+rule "Time to SSD1306"
+when
+	Time cron "0 0/1 * * * ?" //каждую 1 минут
+then
+	var String Hour = String::format( "%1$tk", new Date() ) //https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html
+	var String Minute = String::format( "%1$tM", new Date() )
+    var String Temp = (((Shield3_Top_P0_BMx280_Temp.state as DecimalType)*10).intValue/10.0).toString //оставляем один знак после запятой и преобразуем в строку
+
+	sendHttpGetRequest("http://192.168.48.30/sec/?pt=5&disp_cmd=1&row=0")	//очистка верней строки
+	Thread::sleep(2000) //2000 миллисекунд в секундах	
+	sendCommand(Shield3_Top_P5_SSD1306_Text,"ssssssss") //очистка основной строки
+	Thread::sleep(2500) //2500 миллисекунд в секундах
+	sendCommand(Shield3_Top_P5_SSD1306_SmallText, "Time") 
+	sendCommand(Shield3_Top_P5_SSD1306_Text, "_" + Hour + ";" + Minute) 
+	
+	Thread::sleep(30000) //30000 миллисекунд в секундах
+
+	sendHttpGetRequest("http://192.168.48.30/sec/?pt=5&disp_cmd=1&row=0")	//очистка верней строки
+	Thread::sleep(2000) //2000 миллисекунд в секундах	
+	sendCommand(Shield3_Top_P5_SSD1306_Text,"ssssssss") //очистка основной строки
+	Thread::sleep(2500) //2500 миллисекунд в секундах	
+	sendCommand(Shield3_Top_P5_SSD1306_SmallText, "Outdoor") 
+	sendCommand(Shield3_Top_P5_SSD1306_Text, "_" + Temp + ":") 
+end
+
+
+/* =============================================================================================================== */
+// пересчет значений электросчетчика в цифры из текста
+/*
+rule "Convert String Merc200_amper_str to Item Number"
+  when
+    Item Merc200_amper_str changed
+ then
+    val newValue = transform("REGEX", ".*=(\\d*.\\d*).*", Merc200_amper_str.state.toString) // use the transformation service to retrieve the value
+    Merc200_amper.postUpdate( newValue )  // post the new value to the Number Item
+ end
+rule "Convert String Merc200_power_str to Item Number"
+  when
+    Item Merc200_power_str changed
+ then
+    val newValue = transform("REGEX", ".*=(\\d*.\\d*).*", Merc200_power_str.state.toString) // use the transformation service to retrieve the value
+    Merc200_power.postUpdate( newValue )  // post the new value to the Number Item
+ end
+ rule "Convert String Merc200_volt_str to Item Number"
+  when
+    Item Merc200_volt_str changed
+ then
+    val newValue = transform("REGEX", ".*=(\\d*.\\d*).*", Merc200_volt_str.state.toString) // use the transformation service to retrieve the value
+    Merc200_volt.postUpdate( newValue )  // post the new value to the Number Item
+ end
+ rule "Convert String Merc200_amper_str to Item Number"
+  when
+    Item Merc200_amper_str changed
+ then
+    val newValue = transform("REGEX", ".*=(\\d*.\\d*).*", Merc200_amper_str.state.toString) // use the transformation service to retrieve the value
+    Merc200_amper.postUpdate( newValue )  // post the new value to the Number Item
+ end
+ rule "Convert String Merc200_t1_str to Item Number"
+  when
+    Item Merc200_t1_str changed
+ then
+    val Number Merc200=Float::parseFloat(String::format("%s",Merc200_t1_str.state))
+    Merc200_t1.postUpdate( Merc200 )  
+ end
+ rule "Convert String Merc200_t2_str to Item Number"
+  when
+    Item Merc200_t2_str changed
+ then
+    val Number Merc200=Float::parseFloat(String::format("%s",Merc200_t2_str.state))
+    Merc200_t2.postUpdate( Merc200 )  
+ end
+*/
+/* =============================================================================================================== */
+
+//подсчет показаний хол. воды
+
+rule "CountWaterImpCold"
+when
+   Item P8_WaterPulse_cold changed to ON //received update ON   
+then
+	var Number WatCold = CountWaterM3Cold.state as DecimalType
+	var Number tmp1
+	var Number Kal1
+	var Number Dif1
+   
+	tmp1 = WatCold + 0.01 // один полный импульс при прохождении 10 л жидкости 
+	postUpdate(CountWaterM3Cold, tmp1.doubleValue)
+	
+	if (CountWaterM3Cold.state instanceof DecimalType) {
+        Kal1 = CountWaterM3Cold.minimumSince(now.toDateMidnight.withDayOfMonth(1)).state as DecimalType //на начало месяца
+	    postUpdate(CountWaterM3Cold_Kalends, Kal1.doubleValue )
+       	Dif1 = tmp1 - Kal1
+       	postUpdate(CountWaterM3Cold_Consumption, Dif1.doubleValue )
+    	}    	
+end
+
+//подсчет показаний гор. воды
+rule "CountWaterImpHot"
+when
+   Item P9_WaterPulse_hot changed to ON //received update ON 
+then
+	var Number WatHot = CountWaterM3Hot.state as DecimalType
+	var Number tmp2
+	var Number Kal2
+	var Number Dif2
+   
+	tmp2 = WatHot + 0.01 // один полный импульс при прохождении 10 л жидкости 
+	postUpdate(CountWaterM3Hot, tmp2.doubleValue)
+	
+	if (CountWaterM3Hot.state instanceof DecimalType) {
+        Kal2 = CountWaterM3Hot.minimumSince(now.toDateMidnight.withDayOfMonth(1)).state as DecimalType //на начало месяца
+	    postUpdate(CountWaterM3Hot_Kalends, Kal2.doubleValue )
+       	Dif2 = tmp2 - Kal2
+       	postUpdate(CountWaterM3Hot_Consumption, Dif2.doubleValue )
+    	}	
+end
+
+//отображение воды в sitemap
+rule "WaterSitemap"
+when
+	Time cron "0 0/10 * * * ?" //каждые 10 минут
+then
+	val CropDigital3 = String::format("%.2f", (CountWaterM3Cold.state as DecimalType).doubleValue )
+	val CropDigital4 = String::format("%.2f", (CountWaterM3Cold_Consumption.state as DecimalType).doubleValue )
+	postUpdate(CountWaterM3Cold_general, CropDigital3 + " (" + CropDigital4 + " в тек.мес.)" )	    
+	
+	val CropDigital5 = String::format("%.2f", (CountWaterM3Hot.state as DecimalType).doubleValue )
+	val CropDigital6 = String::format("%.2f", (CountWaterM3Hot_Consumption.state as DecimalType).doubleValue )
+	postUpdate(CountWaterM3Hot_general, CropDigital5 + " (" + CropDigital6 + " в тек.мес.)" )	
+end
+
+/* =============================================================================================================== */ 
+//дверь 
+
+rule "Door_Entrance closed" //ON=закрыта
+when
+    Item Door_Entrance changed to ON     
+then
+	postUpdate(Door_Entrance_last_use, new DateTimeType() )
+	postUpdate(Door_Entrance_state,  "закрыта")	
+end
+
+rule "Door_Entrance open" //OFF=открыта
+when
+    Item Door_Entrance changed to OFF
+then
+	var Number RunStart 
+	RunStart = now.millis
+	postUpdate(Door_Entrance_DoorRunStart, RunStart.doubleValue ) // Timestamp when the switch was turned off	
+	postUpdate(Door_Entrance_last_use, new DateTimeType() )
+	postUpdate(Door_Entrance_state,  "открыта" )
+	//postUpdate(Door_Entrance_state_general,  "открыта" )
+end
+
+rule "Door_Entrance_last_use_ago" 
+when
+    Time cron "0 0/3 * * * ?" //каждые 3 мин
+then
+	//postUpdate(Door_Entrance_DoorRunStart, 0) 
+	var Number RunStart = Door_Entrance_DoorRunStart.state as DecimalType
+	var Number DoorTime
+	var Number RunEnd
+	RunEnd = now.millis
+ 	if (Door_Entrance.state==ON) {
+	DoorTime = (RunEnd - RunStart) / 3600000 //миллисекунды в часы
+	postUpdate(Door_Entrance_last_use_ago, DoorTime.doubleValue)
+	
+	val CropDigital = String::format("%.2f", DoorTime.doubleValue ) //формат строки для sitemap
+	postUpdate(Door_Entrance_state_general, Door_Entrance_state.state + " (" + CropDigital + " ч)" )	
+	}	
+end
+
+/* =============================================================================================================== */
+
+// правила для физических кнопок
+/*
+rule "Shield2_P15"
+when
+	Item Shield2_P15 changed to ON
+then
+	sendCommand(Bell, ON)
+end
+rule "Shield2_P15"
+when
+	Item Shield2_P15 changed to OFF
+then
+	sendCommand(Bell, OFF)
+end
+
+rule "Shield2_P16"
+when
+	Item Shield2_P16 changed to ON
+then
+	if (Bedroom_LampOnWall_Left.state == ON) { sendCommand(Bedroom_LampOnWall_Left, OFF) }
+	else if (Bedroom_LampOnWall_Left.state == OFF) { sendCommand(Bedroom_LampOnWall_Left, ON) }
+end
+
+rule "Shield2_P17"
+when
+	Item Shield2_P17 changed to ON
+then
+	if (Bedroom_Lamps.state > 1) { sendCommand(Bedroom_Lamps, 0) }
+	else if (Bedroom_Lamps.state == 0) { sendCommand(Bedroom_Lamps, 100) }
+end
+
+rule "Shield2_P18"
+when
+	Item Shield2_P18 changed to ON
+then
+	sendCommand(Bedroom_Curtains, 0)
+end
+
+rule "Shield2_P19"
+when
+	Item Shield2_P19 changed to ON
+then
+	sendCommand(Bedroom_Curtains, 1)
+end
+
+rule "Shield2_P20"
+when
+	Item Shield2_P20 changed to ON
+then
+	if (Loggia.state == ON) { sendCommand(Loggia, OFF) }
+	else if (Loggia.state == OFF) { sendCommand(Loggia, ON) }
+end
+
+rule "Shield2_P21"  //выключить всё
+when
+    Item Shield2_P21 changed to ON
+then
+    sendCommand(Bedroom_Lamps, 0)
+    sendCommand(Bedroom_TV, OFF)
+    sendCommand(Bedroom_LampOnWall_Right, OFF)
+    sendCommand(Bedroom_LampOnWall_Left, OFF)
+    sendCommand(Loggia, OFF)
+    sendCommand(Kitchen_Cupboard, OFF)
+    sendCommand(Kitchen_Lamp, OFF)
+    sendCommand(Toilet_Lamps, 0)
+    sendCommand(Hallway_Bottom, OFF)
+    Thread::sleep(15000) //15000 миллисекунд в секундах
+    sendCommand(Hallway_Lamps, 0)
+end
+
+rule "Shield2_P24"
+when
+	Item Shield2_P24 changed to ON
+then
+	if (Kitchen_Lamp.state == ON) { sendCommand(Kitchen_Lamp, OFF) }
+	else if (Kitchen_Lamp.state == OFF) { sendCommand(Kitchen_Lamp, ON) }
+end
+
+rule "Shield2_P26"
+when
+	Item Shield2_P26 changed to ON
+then
+	if (Toilet_Lamps.state > 31) { sendCommand(Toilet_Lamps, 0) }
+	else if (Toilet_Lamps.state == 0) { sendCommand(Toilet_Lamps, 100) }
+end
+
+
+rule "Shield3_P3"
+when
+	Item Shield3_P3 changed to ON
+then
+	if (Bedroom_LampOnWall_Right.state == ON) { sendCommand(Bedroom_LampOnWall_Right, OFF) }
+	else if (Bedroom_LampOnWall_Right.state == OFF) { sendCommand(Bedroom_LampOnWall_Right, ON) }
+end
+
+rule "Shield3_P24"
+when
+	Item Shield3_P24 changed to ON
+then
+	if (Hallway_Lamps.state > 2) { sendCommand(Hallway_Lamps, 0) }
+	else if (Hallway_Lamps.state == 0) { sendCommand(Hallway_Lamps, 100) }
+end
+
+rule "Shield3_P25"
+when
+	Item Shield3_P25 changed to ON
+then
+	if (Kitchen_Cupboard.state == ON) { sendCommand(Kitchen_Cupboard, OFF) }
+	else if (Kitchen_Cupboard.state == OFF) { sendCommand(Kitchen_Cupboard, ON) }
+end
+
+rule "Shield3_P28"
+when
+	Item Shield3_P28 changed to ON
+then
+	if (Toilet_Lamps.state >=1 ) { sendCommand(Toilet_Lamps, 0) }
+	else if (Toilet_Lamps.state == 0) { sendCommand(Toilet_Lamps, 4) }
+end
+
+*/
+
+/* =============================================================================================================== */
+
+/*
+//Начало правила для штор
+//variables to store current state of Bedroom_Curtains https://github.com/openhab/openhab1-addons/wiki/Rollershutter-Bindings
+var Number Bedroom_CurtainsOldState = 50
+var Number Bedroom_CurtainsLastUp = 0
+var Number Bedroom_CurtainsLastDown = 0
+
+//URL to be called as HTPP GET. Up and Down start moving shutting either until completely moved or until Stop called.
+var String Bedroom_CurtainsDownActionUrl =  "http://192.168.48.20/sec/?pt=4&cmd=3:1"
+var String Bedroom_CurtainsUpActionUrl =    "http://192.168.48.20/sec/?pt=4&cmd=4:1"
+var String Bedroom_CurtainsStopActionUrlDown =  "http://192.168.48.20/sec/?pt=4&cmd=3:0"
+var String Bedroom_CurtainsStopActionUrlUp =    "http://192.168.48.20/sec/?pt=4&cmd=4:0"
+
+//time in ms needed to completely open and close Bedroom_Curtains, respectively
+var Number Bedroom_Curtains_FULL_UP_TIME = 17000
+var Number Bedroom_Curtains_FULL_DOWN_TIME = 17000
+
+rule "Bedroom_Curtains Save Old State Rule"
+when
+    Item Bedroom_Curtains changed	
+then
+    Bedroom_CurtainsOldState = previousState as DecimalType
+end
+
+rule "Bedroom_Curtains Control Rule"
+when
+    Item Bedroom_Curtains received command 
+then
+    if(receivedCommand !== null){
+        var Number upTime = now.millis - Bedroom_CurtainsLastUp
+        var Number downTime = now.millis - Bedroom_CurtainsLastDown
+        switch(receivedCommand.toString.upperCase) {
+            case "STOP" :{ 
+                var Number newState = -1
+                if(upTime < downTime && upTime < Bedroom_Curtains_FULL_UP_TIME) {
+                    //last action was up and still going UP.
+                    //0% is open!				
+                    var Number percentMoved =  ((upTime) * 100 / Bedroom_Curtains_FULL_UP_TIME).intValue 
+                    newState = Bedroom_CurtainsOldState - percentMoved
+                    logInfo("Bedroom_CurtainsOldState: " + Bedroom_CurtainsOldState + " UP: " + percentMoved + "% in " + upTime/1000 + "sec. Now: " + newState+ "%" )
+                } else if(upTime > downTime && downTime < Bedroom_Curtains_FULL_DOWN_TIME) {
+                    //last action was down and still going DOWN.
+                    //100% is closed!
+                    var Number percentMoved = ((downTime) * 100 / Bedroom_Curtains_FULL_DOWN_TIME).intValue
+                    newState = Bedroom_CurtainsOldState + percentMoved
+                    logInfo("Bedroom_CurtainsOldState: " + Bedroom_CurtainsOldState + "% DOWN: " + percentMoved + "% in " + downTime/1000 + "sec. Now: " + newState+ "%" )
+                }
+                if(newState > 0 && newState < 100) {
+                    postUpdate(Bedroom_Curtains, newState)
+                    if(Bedroom_CurtainsStopActionUrlDown !== null){
+                        sendHttpGetRequest(Bedroom_CurtainsStopActionUrlDown)
+						sendHttpGetRequest(Bedroom_CurtainsStopActionUrlUp)
+                    }
+                }
+            }			
+            case "UP" : {
+                if(upTime < Bedroom_Curtains_FULL_UP_TIME) {
+                    //still going up. ignore.
+                } else {
+                    Bedroom_CurtainsLastUp = now.millis
+                    if(Bedroom_CurtainsUpActionUrl !== null){
+                        sendHttpGetRequest(Bedroom_CurtainsUpActionUrl)
+                    }
+                }
+            }
+            case "DOWN":{
+                if(downTime < Bedroom_Curtains_FULL_DOWN_TIME) {
+                    //still going up. ignore.
+                } else {
+                    Bedroom_CurtainsLastDown = now.millis
+                    if(Bedroom_CurtainsDownActionUrl !== null){
+                        sendHttpGetRequest(Bedroom_CurtainsDownActionUrl)
+                    }
+                }
+            }
+        }
+    }
+end
+
+rule "Bedroom_Curtains UP" 
+when
+    Item Bedroom_Curtains received command UP    //открыть
+then
+    postUpdate(Bedroom_Curtains, 100)
+    publish("mosquitto","megad/20/cmd","4=1")
+    Thread::sleep(8500) //половина
+    postUpdate(Bedroom_Curtains, 50)
+	Thread::sleep(8500) //17000 миллисекунд в секундах
+    publish("mosquitto","megad/20/cmd","4=0")
+    postUpdate(Bedroom_Curtains, 0)
+end
+
+rule "Bedroom_Curtains DOWN" 
+when
+    Item Bedroom_Curtains received command DOWN    //закрыть
+then
+    postUpdate(Bedroom_Curtains, 0)
+    publish("mosquitto","megad/20/cmd","3=1")
+    Thread::sleep(8500) //половина
+    postUpdate(Bedroom_Curtains, 50)    
+	Thread::sleep(8500) //17000 миллисекунд в секундах
+    publish("mosquitto","megad/20/cmd","3=0")
+    postUpdate(Bedroom_Curtains, 100)
+end
+
+rule "Bedroom_Curtains STOP" 
+when
+    Item Bedroom_Curtains received command STOP    //стоп
+then
+    publish("mosquitto","megad/20/cmd","3=0")
+    publish("mosquitto","megad/20/cmd","4=0")
+end
+*/
