@@ -3,6 +3,8 @@
 
 Общее описание в [в статье на Хабре](https://habr.com/ru/post/ТУТ/). Подробности на [форуме](https://www.ab-log.ru/forum/viewtopic.php?f=1&t=1373).
 
+![Квартира](https://github.com/empenoso/openHAB_one-room-apartment/blob/master/3d.jpeg)
+
 _________
 :exclamation: ВНИМАНИЕ :exclamation:
 
