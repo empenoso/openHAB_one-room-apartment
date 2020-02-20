@@ -1,2 +1,9 @@
-# openHAB_one-room-apartment
-Автоматизация однокомнатной квартиры c openHAB (больше не использую openHAB broken_heart) 
+# Полная домашняя автоматизация в новостройке
+Автоматизация была сделана при помощи многофункционального контроллера [MegaD-2561](https://www.ab-log.ru/smart-house/ethernet/megad-2561).
+
+Общее описание в [в статье на Хабре](https://habr.com/ru/post/ТУТ/). Подробности на [форуме](https://www.ab-log.ru/forum/viewtopic.php?f=1&t=1373).
+
+_________
+:exclamation: ВНИМАНИЕ :exclamation:
+
+:point_right: Решил больше не пользоваться openHAB с лета 2019 года. Перешел на Home Assistant. :point_left:
